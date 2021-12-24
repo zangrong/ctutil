@@ -27,11 +27,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @ClassName: JacksonUtil
- * @Description: Json工具类
- * @date: 2017年3月7日 下午4:13:53
- * @author: zangrong
+ * @Description
  *
+ *
+ *
+ * @author zangrong
+ * @Date 2020-01-20 06:02
  */
 @Slf4j
 public class JacksonUtil {

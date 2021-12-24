@@ -17,10 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *@ClassName ThreadUtil
- *@Author zangrong
- *@Date 2020-01-20 06:02
- *@Description 线程工具类
+ * @Description
+ *
+ *
+ *
+ * @author zangrong
+ * @Date 2020-01-20 06:02
  */
 @Slf4j
 public class ThreadUtil {

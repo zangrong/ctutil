@@ -16,11 +16,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @ClassName:  PageUtil   
- * @Description: 自定义分页工具类
- * @date:  2018年3月8日 上午10:02:17
- * @author: zangrong
- * 
+ * @Description
+ *
+ *
+ *
+ * @author zangrong
+ * @Date 2020-01-20 06:02
  */
 public class PageUtil {
 	

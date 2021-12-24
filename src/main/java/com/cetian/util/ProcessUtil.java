@@ -20,11 +20,12 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * @ClassName: ProcessUtil
- * @Description: 进度工具类
- * @date: 2017年5月5日 下午4:29:21
- * @author: zangrong
- * 
+ * @Description
+ *
+ *
+ *
+ * @author zangrong
+ * @Date 2020-01-20 06:02
  */
 public class ProcessUtil {
 

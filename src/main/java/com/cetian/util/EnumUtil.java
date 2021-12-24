@@ -21,10 +21,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * @Description
+ *
+ *
+ *
  * @author zangrong
- * @ClassName: EnumUtil
- * @Description: TODO
- * @date 2018/7/3 14:53
+ * @Date 2020-01-20 06:02
  */
 @Slf4j
 public class EnumUtil {

@@ -28,10 +28,12 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.function.BiPredicate;
 
 /**
- * @ClassName: FileUtil
- * @Description: TODO
- * @date 2019-04-03 09:58
+ * @Description
+ *
+ *
+ *
  * @author zangrong
+ * @Date 2020-01-20 06:02
  */
 @Slf4j
 public class FileUtil {
@@ -136,40 +138,40 @@ public class FileUtil {
      * @return
      */
     public static String getFileName(File file){
-        String name = null;
+        String fileName = null;
         try{
-            name = file.getName();
-            int i = StringUtils.lastIndexOf(name, ".");
+            fileName = file.getName();
+            int i = StringUtils.lastIndexOf(fileName, ".");
             if (i >= 0) {
-                name = StringUtils.substring(name, 0, i);
+                fileName = StringUtils.substring(fileName, 0, i);
             }
         }catch(Exception e){
             log.warn("", e);
         }
-        return name;
+        return fileName;
     }
 
     /**
-     * 获取文件扩展名
+     * 获取文件扩展名，不含点
      * @param file
      * @return
      */
     public static String getExtensionName(File file){
-        String name = null;
+        String extensionName = null;
         try{
-            name = file.getName();
-            int i = StringUtils.lastIndexOf(name, ".");
+            extensionName = file.getName();
+            int i = StringUtils.lastIndexOf(extensionName, ".");
             if (i == -1) {
                 return "";
-            }else if (i == name.length() - 1) {
+            }else if (i == extensionName.length() - 1) {
                 return "";
             }else if (i >= 0 ) {
-                name = StringUtils.substring(name, i+1, name.length());
+                extensionName = StringUtils.substring(extensionName, i+1, extensionName.length());
             }
         }catch(Exception e){
             log.warn("", e);
         }
-        return name;
+        return extensionName;
     }
 
     /**
@@ -178,10 +180,10 @@ public class FileUtil {
      * @return
      */
     public static String getExtensionName(String filename){
-        String getExtensionName = null;
+        String extensionName = null;
         try{
             if (filename == null){
-                return getExtensionName;
+                return extensionName;
             }
             int i = StringUtils.lastIndexOf(filename, ".");
             if (i == -1) {
@@ -189,12 +191,12 @@ public class FileUtil {
             }else if (i == filename.length() - 1) {
                 return "";
             }else if (i >= 0 ) {
-                getExtensionName = StringUtils.substring(filename, i+1, filename.length());
+                extensionName = StringUtils.substring(filename, i + 1, filename.length());
             }
         }catch(Exception e){
             log.warn("", e);
         }
-        return getExtensionName;
+        return extensionName;
     }
 
 }

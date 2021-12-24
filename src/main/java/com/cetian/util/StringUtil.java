@@ -19,21 +19,42 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 /**
+ * @Description:
+ *
  * @author zangrong
- * @ClassName: StringUtil
- * @Description: TODO
  * @date 2018/8/28 19:57
  */
 @Slf4j
 public class StringUtil {
 
     public static final String DEFAULT_SEPARATOR = "-";
+    public static final String CHARSET_GB2312 = "GB2312";
+    public static final String CHARSET_ISO8859_1 = "ISO8859-1";
+    public static final String CHARSET_UTF_8 = "UTF-8";
+
+    /**
+     * text transform from one charset to another
+     *
+     * @param text text to transform
+     * @param fromCharsetName  original charset
+     * @param toCharsetName target charset
+     * @return text after transform
+     */
+    public static String transform(String text, String fromCharsetName, String toCharsetName) {
+        try {
+            text = new String(text.getBytes(fromCharsetName), toCharsetName);
+        } catch (UnsupportedEncodingException ex) {
+            log.warn("text encode transform error. text[{}] message[{}]", text, ex.getMessage());
+        }
+        return text;
+    }
 
     /**
      * 把字符串包含在指定文本中

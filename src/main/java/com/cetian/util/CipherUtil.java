@@ -30,10 +30,12 @@ import java.security.MessageDigest;
 import java.security.spec.KeySpec;
 
 /**
- *@ClassName CipherUtil
- *@Author zangrong
- *@Date 2019-07-29 09:31
- *@Description 密码系统
+ * @Description
+ *
+ *
+ *
+ * @author zangrong
+ * @Date 2020-01-20 06:02
  */
 @Slf4j
 public class CipherUtil {

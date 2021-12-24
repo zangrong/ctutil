@@ -17,6 +17,14 @@ import org.apache.commons.lang3.RandomStringUtils;
 import java.io.Serializable;
 import java.util.Random;
 
+/**
+ * @Description
+ *
+ *
+ *
+ * @author zangrong
+ * @Date 2020-01-20 06:02
+ */
 public class SnowflakeUtil implements Serializable {
 
     /**

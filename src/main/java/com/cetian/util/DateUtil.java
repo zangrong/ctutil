@@ -29,9 +29,12 @@ import java.util.*;
 
 
 /**
- * 日期工具类，提供常用的日期工具类
- * 
+ * @Description
+ *
+ *
+ *
  * @author zangrong
+ * @Date 2020-01-20 06:02
  */
 public class DateUtil {
 
@@ -51,7 +54,7 @@ public class DateUtil {
 
     /**
      * 通过给定字符串格式解析文本到 ISO-8601 日期，
-     * 
+     *
      * @param pattern  字符串格式
      * @param text     要解析的文本
      * @return 格式后的日期对象

@@ -17,11 +17,12 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
 /**
- * @ClassName: NumberUtil
- * @Description: 数字工具类
- * @date: 2017年3月2日 上午11:19:30
- * @author: zangrong
- * 
+ * @Description
+ *
+ *
+ *
+ * @author zangrong
+ * @Date 2020-01-20 06:02
  */
 public class NumberUtil {
 
