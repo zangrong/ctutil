@@ -164,16 +164,4 @@
         </plugins>
     </build>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>cetian_server</id>
-            <url>http://129.28.165.238:8081/repository/maven-snapshots/</url>
-            <uniqueVersion>true</uniqueVersion>
-        </snapshotRepository>
-        <repository>
-            <id>cetian_server</id>
-            <url>http://129.28.165.238:8081/repository/maven-releases/</url>
-        </repository>
-    </distributionManagement>
-
 </project>
