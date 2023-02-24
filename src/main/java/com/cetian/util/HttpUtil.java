@@ -349,19 +349,22 @@ public class HttpUtil {
 	 *            json对象
 	 * @return
 	 */
-	public static String doPostJson(String apiUrl, Map<String, Object> headers, Object json) {
+	public static String doPostJson(String apiUrl, Map<String, Object> headers, String json, RequestConfig config) {
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		String httpStr = null;
 		HttpPost httpPost = new HttpPost(apiUrl);
 		CloseableHttpResponse response = null;
 		try {
-			httpPost.setConfig(requestConfig);
+			if (config == null){
+				config = requestConfig;
+			}
+			httpPost.setConfig(config);
 			if (headers != null && !headers.isEmpty()) {
 				for (Entry<String, Object> header : headers.entrySet()) {
 					httpPost.setHeader(header.getKey(), ObjectUtil.trimToEmpty(header.getValue()));
 				}
 			}
-			StringEntity stringEntity = new StringEntity(json.toString(), UTF_8);// 解决中文乱码问题
+			StringEntity stringEntity = new StringEntity(json, UTF_8);// 解决中文乱码问题
 			stringEntity.setContentEncoding(UTF_8);
 			stringEntity.setContentType("application/json");
 			httpPost.setEntity(stringEntity);
