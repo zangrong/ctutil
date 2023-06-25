@@ -82,6 +82,29 @@ public class ExcelUtil {
         return value;
     }
 
+    public static Integer getIntegerValue(Row row, int i) {
+        Integer value = null;
+        if (row == null) {
+            return value;
+        }
+        Cell cell = row.getCell(i);
+        if (cell == null) {
+            return value;
+        }
+        try{
+            double doubleValue = cell.getNumericCellValue();
+            value = (int)doubleValue;
+        }catch(Exception e){
+            try{
+                String temp = StringUtils.trimToNull(cell.getStringCellValue());
+                value = Integer.parseInt(temp);
+            }catch(Exception ex){
+                log.warn("", ex);
+            }
+        }
+        return value;
+    }
+
     public static <E extends Enum<E>> E getEnumCellValue(Row row, int i, Class<E> clazz) {
         if (row == null) {
             return null;

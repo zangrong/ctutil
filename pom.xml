@@ -6,7 +6,7 @@
 
     <groupId>com.cetian</groupId>
     <artifactId>ct-util</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <properties>
         <java.version>17</java.version>
     </properties>
@@ -35,6 +35,7 @@
             <version>1.7.32</version>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>jakarta.persistence</groupId>
             <artifactId>jakarta.persistence-api</artifactId>
@@ -102,13 +103,13 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>6.0.6</version>
+            <version>6.0.10</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>6.0.6</version>
+            <version>6.0.10</version>
             <scope>compile</scope>
         </dependency>
 
