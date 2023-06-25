@@ -8,7 +8,7 @@
     <artifactId>ct-util</artifactId>
     <version>1.0-SNAPSHOT</version>
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>17</java.version>
     </properties>
     <dependencies>
         <dependency>
@@ -36,18 +36,18 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>javax.persistence-api</artifactId>
-            <version>2.2</version>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <version>3.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
+            <version>2.14.2</version>
             <scope>compile</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.13.0</version>
-            <scope>compile</scope>
-        </dependency>
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
@@ -102,13 +102,13 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>5.3.14</version>
+            <version>6.0.6</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>5.3.14</version>
+            <version>6.0.6</version>
             <scope>compile</scope>
         </dependency>
 
@@ -177,9 +177,13 @@
     </build>
     <distributionManagement>
         <repository>
+            <id>rdc-releases</id>
+            <url>https://packages.aliyun.com/maven/repository/2272405-release-Nb2hUv/</url>
+        </repository>
+        <snapshotRepository>
             <id>rdc-snapshots</id>
             <url>https://packages.aliyun.com/maven/repository/2272405-snapshot-SPK28x/</url>
-        </repository>
+        </snapshotRepository>
     </distributionManagement>
 
 </project>
