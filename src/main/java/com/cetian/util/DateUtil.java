@@ -12,12 +12,17 @@
  */
 package com.cetian.util;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.apache.poi.ss.formula.functions.T;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -878,4 +883,80 @@ public class DateUtil {
         return new int[]{year, week};
     }
 
+    public static DateConvertor from(Object src){
+        return new DateConvertor(src);
+    }
+
+    @Slf4j
+    public static class DateConvertor{
+        private Date temp;
+        private Object src;
+        private String dateFormat;
+
+        public DateConvertor(Object src){
+            this.src = src;
+        }
+
+        public DateConvertor setDateFormat(String dateFormat){
+            this.dateFormat = dateFormat;
+            return this;
+        }
+
+        public <T> T to(Class<T> clazz){
+            if (this.src == null){
+                return null;
+            }
+
+            // 先转成中间日期对象 temp
+            if (this.src instanceof String){
+                try {
+                    if (StringUtils.isBlank(this.dateFormat)){
+                        this.temp = DateUtils.parseDate((String)this.src, DateUtil.DATE_FORMAT);
+                    }else{
+                        temp = DateUtils.parseDate((String)this.src, this.dateFormat);
+                    }
+                }catch (Exception e){
+                    log.warn("日期转换异常[{}] 格式[{}]", this.src, this.dateFormat);
+                    log.warn("日期转换异常", e);
+                }
+            }else if(src instanceof Date){
+                temp = (Date)src;
+            }else if (src instanceof Calendar){
+                temp = ((Calendar) src).getTime();
+            }else if (src instanceof Long){
+                // 如果是微秒的要转换成秒，这里会丢失微秒精度
+                Long val = (Long) src;
+                if (Long.toString((Long) src).length() == 14){
+                    val = val / 1000;
+                }
+                temp = longToDate(val);
+            }
+
+
+            if (temp == null){
+                return null;
+            }
+            // 转成目标对象类型
+            if (clazz == String.class){
+                if (StringUtils.isBlank(this.dateFormat)){
+                    return (T) DateFormatUtils.format(this.temp, DATE_FORMAT);
+                }else{
+                    return (T) DateFormatUtils.format(this.temp, this.dateFormat);
+                }
+            }else if (clazz == Date.class){
+                return (T) temp;
+            }else if (clazz == Calendar.class){
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(temp);
+                return (T) cal;
+            }else if (clazz == Long.class){
+                return (T) dateToLong(temp);
+            }
+            throw new IllegalArgumentException("转换日期的目标类型不正确");
+        }
+
+    }
+
 }
+
+
