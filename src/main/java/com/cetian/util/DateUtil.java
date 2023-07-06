@@ -926,7 +926,7 @@ public class DateUtil {
             }else if (src instanceof Long){
                 // 如果是微秒的要转换成秒，这里会丢失微秒精度
                 Long val = (Long) src;
-                if (Long.toString((Long) src).length() == 14){
+                if (Long.toString((Long) src).length() == 13){
                     val = val / 1000;
                 }
                 temp = longToDate(val);
