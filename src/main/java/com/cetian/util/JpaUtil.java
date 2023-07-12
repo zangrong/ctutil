@@ -10,6 +10,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.From;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
+import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +30,7 @@ import java.util.List;
  */
 public class JpaUtil {
 
+    @Data
     public static class JpaCondition implements Serializable {
         /**
          *
@@ -36,35 +38,20 @@ public class JpaUtil {
         private static final long serialVersionUID = 1L;
 
         // 字段名
-        private String fieldName;
+        private Path<?> path;
         // 值
         private Object value;
 
-        public String getFieldName() {
-            return fieldName;
-        }
-
-        public void setFieldName(String fieldName) {
-            this.fieldName = fieldName;
-        }
-
-        public Object getValue() {
-            return value;
-        }
-
-        public void setValue(Object value) {
-            this.value = value;
-        }
     }
 
 
-    public static void yearAndMonthRange(Integer year, Integer month, String fieldName, List<Predicate> list, From<?, ?> from, CriteriaBuilder cb) {
+    public static void yearAndMonthRange(Path<Date> field, Integer year, Integer month, List<Predicate> list, CriteriaBuilder cb) {
         Date[] range = DateUtil.range(year, month);
         if (range[0] != null){
-            list.add(cb.greaterThanOrEqualTo(from.get(fieldName), range[0]));
+            list.add(cb.greaterThanOrEqualTo(field, range[0]));
         }
         if (range[1] != null){
-            list.add(cb.lessThanOrEqualTo(from.get(fieldName), range[1]));
+            list.add(cb.lessThanOrEqualTo(field, range[1]));
         }
     }
 
@@ -123,70 +110,66 @@ public class JpaUtil {
     }
 
     /**
-     * 模糊查询
-     * @param text 调用者决定怎么带 %
-     * @param fieldName 字段名
+     * 模糊查询, 调用者决定怎么带 %
+     * @param path
+     * @param text
      * @param list
-     * @param from
      * @param cb
      */
-    public static void like(String text, String fieldName, List<Predicate> list, From<?, ?> from, CriteriaBuilder cb) {
+    public static void like(Path<String> path, String text, List<Predicate> list, CriteriaBuilder cb) {
         if (StringUtils.isNotBlank(text)){
-            list.add(cb.like(from.get(fieldName), text));
+            list.add(cb.like(path, text));
         }
     }
 
     /**
-     * 模糊查询
-     * @param text 方法帮前后加%
-     * @param fieldName 字段名
+     * 模糊查询,方法帮前后加%
+     * @param path
+     * @param text
      * @param list
-     * @param from
      * @param cb
      */
-    public static void likeEmbrace(String text, String fieldName, List<Predicate> list, From<?, ?> from, CriteriaBuilder cb) {
+    public static void likeEmbrace(Path<String> path, String text, List<Predicate> list, CriteriaBuilder cb) {
         if (StringUtils.isNotBlank(text)){
-            list.add(cb.like(from.get(fieldName), StringUtil.embraceLike(text)));
+            list.add(cb.like(path, StringUtil.embraceLike(text)));
         }
     }
 
     /**
-     * 多字段搜索
-     * @param text 搜索内容，不带 %
-     * @param fieldNames 字段数组，可能是多个字段
+     * 多字段搜索, 搜索内容，调用者决定是否带%
+     * @param pathes
+     * @param text
      * @param list
-     * @param from
      * @param cb
      */
-    public static void like(String text, String[] fieldNames, List<Predicate> list, From<?, ?> from, CriteriaBuilder cb) {
+    public static void like(Path<String>[] pathes, String text, List<Predicate> list, CriteriaBuilder cb) {
         if (StringUtils.isBlank(text)){
             return;
         }
-        if (ArrayUtils.isEmpty(fieldNames) ){
+        if (ArrayUtils.isEmpty(pathes) ){
             return;
         }
 
         List<Predicate> orList = new ArrayList<>();
         String txt = StringUtil.embraceLike(text);
-        for (String fieldName : fieldNames) {
-            orList.add(cb.like(from.get(fieldName), txt));
+        for (Path<String> path : pathes) {
+            orList.add(cb.like(path, txt));
         }
         list.add(cb.or(orList.stream().toArray(Predicate[]::new)));
     }
 
     /**
-     *
-     * @param texts 文本内容，可能多个
-     * @param fieldName 字段名
+     * 文本内容，可能多个
+     * @param path
+     * @param texts
      * @param list
-     * @param from
      * @param cb
      */
-    public static void like(List<String> texts, String fieldName, List<Predicate> list, From<?, ?> from, CriteriaBuilder cb) {
+    public static void like(Path<String> path, List<String> texts, List<Predicate> list, CriteriaBuilder cb) {
         if (CollectionUtils.isNotEmpty(texts) ){ // 标签
             List<Predicate> orList = new ArrayList<>();
             for (String text : texts) {
-                orList.add(cb.like(from.get(fieldName), text));
+                orList.add(cb.like(path, text));
             }
             list.add(cb.or(orList.stream().toArray(Predicate[]::new)));
         }
@@ -194,55 +177,55 @@ public class JpaUtil {
 
     /**
      * 相等
-     * @param condition 参数条件
-     * @param fieldName 字段名
+     * @param path
+     * @param condition
      * @param list
-     * @param from
      * @param cb
+     * @param <Y>
      */
-    public static void equal(Object condition, String fieldName, List<Predicate> list, From<?, ?> from, CriteriaBuilder cb) {
+    public static <Y> void equal(Path<Y> path, Object condition, List<Predicate> list, CriteriaBuilder cb) {
         if (condition != null){
-            list.add(cb.equal(from.get(fieldName), condition));
+            list.add(cb.equal(path, condition));
         }
     }
 
     /**
      * 相等，主要用于表关联查询
-     * @param condition1 表1条件
-     * @param condition2 表2条件
+     * @param path1 表1字段
+     * @param path2 表2字段
      * @param list
      * @param cb
      * @param <Y>
      */
-    public static <Y> void equal(Path<Y> condition1, Path<Y> condition2, List<Predicate> list, CriteriaBuilder cb) {
-        list.add(cb.equal(condition1, condition2));
+    public static <Y> void equal(Path<Y> path1, Path<Y> path2, List<Predicate> list, CriteriaBuilder cb) {
+        list.add(cb.equal(path1, path2));
     }
 
     /**
      * 相等，主要用于表关联查询 eg:a.id = b.id or a.id = c.id
-     * @param condition1
-     * @param condition2
+     * @param path1
+     * @param path2
      * @param list
      * @param cb
      * @param <Y>
      */
-    public static <Y> void equalOr(Path<Y> condition1, Path<Y> condition2, List<Predicate> list, CriteriaBuilder cb){
-        list.add(cb.or(cb.equal(condition1, condition2)));
+    public static <Y> void equalOr(Path<Y> path1, Path<Y> path2, List<Predicate> list, CriteriaBuilder cb){
+        list.add(cb.or(cb.equal(path1, path2)));
     }
 
     /**
      * 或相等，等于指定的任意字段即可
-     * @param condition 条件
-     * @param fieldNames 字段集合，等于其中任意一个字段值即可
+     * @param pathes
+     * @param condition
      * @param list
-     * @param from
      * @param cb
+     * @param <Y>
      */
-    public static void equalOr(Object condition, String[] fieldNames, List<Predicate> list, From<?, ?> from, CriteriaBuilder cb) {
+    public static <Y> void equalOr(Path<Y>[] pathes, Object condition, List<Predicate> list, CriteriaBuilder cb) {
         if (condition != null){
             List<Predicate> orList = new ArrayList<>();
-            for (String fieldName : fieldNames) {
-                orList.add(cb.equal(from.get(fieldName), condition));
+            for (Path<Y> path : pathes) {
+                orList.add(cb.equal(path, condition));
             }
             list.add(cb.or(orList.stream().toArray(Predicate[]::new)));
         }
@@ -261,188 +244,183 @@ public class JpaUtil {
             return;
         }
         Predicate[] predicates = conditions.stream()
-                .map(v ->  cb.equal(from.get(v.getFieldName()), v.getValue())).toArray(Predicate[]::new);
+                .map(v ->  cb.equal(v.getPath(), v.getValue())).toArray(Predicate[]::new);
         list.add(cb.or(predicates));
     }
 
     /**
      * 等于
-     * @param condition 参数条件
-     * @param defaultCondition 默认条件
-     * @param fieldName 字段名
+     * @param path
+     * @param condition
+     * @param defaultCondition
      * @param list
-     * @param from
      * @param cb
+     * @param <Y>
      */
-    public static void equal(Object condition, Object defaultCondition, String fieldName, List<Predicate> list, From<?, ?> from, CriteriaBuilder cb) {
+    public static <Y> void equal(Path<Y> path, Object condition, Object defaultCondition, List<Predicate> list, CriteriaBuilder cb) {
         if (condition != null){
-            list.add(cb.equal(from.get(fieldName), condition));
+            list.add(cb.equal(path, condition));
         }else{
-            list.add(cb.equal(from.get(fieldName), defaultCondition));
+            list.add(cb.equal(path, defaultCondition));
         }
     }
 
     /**
      * 不等于
+     * @param path
      * @param condition
-     * @param fieldName
      * @param list
-     * @param from
      * @param cb
+     * @param <Y>
      */
-    public static void notEqual(Object condition, String fieldName, List<Predicate> list, From<?, ?> from, CriteriaBuilder cb) {
+    public static <Y> void notEqual(Path<Y> path, Object condition, List<Predicate> list, CriteriaBuilder cb) {
         if (condition != null){
-            list.add(cb.notEqual(from.get(fieldName), condition));
+            list.add(cb.notEqual(path, condition));
         }
     }
 
     /**
      * 小于等于
+     * @param path
      * @param condition
-     * @param fieldName
      * @param list
-     * @param from
      * @param cb
-     * @param <Y>
+     * @param <C>
      */
-    public static <Y extends Comparable<? super Y>> void lessThanOrEqualTo(Y condition, String fieldName, List<Predicate> list, From<?, ?> from, CriteriaBuilder cb) {
+    public static  <C extends Comparable<? super C>> void lessThanOrEqualTo(Path<C> path, C condition, List<Predicate> list, CriteriaBuilder cb) {
         if (condition != null){
-            list.add(cb.lessThanOrEqualTo(from.get(fieldName), condition));
+            list.add(cb.lessThanOrEqualTo(path, condition));
         }
     }
 
     /**
      * 小于
+     * @param path
      * @param condition
-     * @param fieldName
      * @param list
-     * @param from
      * @param cb
-     * @param <Y>
+     * @param <C>
      */
-    public static <Y extends Comparable<? super Y>> void lessThan(Y condition, String fieldName, List<Predicate> list, From<?, ?> from, CriteriaBuilder cb) {
+    public static <C extends Comparable<? super C>> void lessThan(Path<C> path, C condition, List<Predicate> list, CriteriaBuilder cb) {
         if (condition != null){
-            list.add(cb.lessThan(from.get(fieldName), condition));
+            list.add(cb.lessThan(path, condition));
         }
     }
 
     /**
      * 大于
+     * @param path
      * @param condition
-     * @param fieldName
      * @param list
-     * @param from
      * @param cb
-     * @param <Y>
+     * @param <C>
      */
-    public static <Y extends Comparable<? super Y>> void greaterThan(Y condition, String fieldName, List<Predicate> list, From<?, ?> from, CriteriaBuilder cb) {
+    public static <C extends Comparable<? super C>> void greaterThan(Path<C> path, C condition, List<Predicate> list, CriteriaBuilder cb) {
         if (condition != null){
-            list.add(cb.greaterThan(from.get(fieldName), condition));
+            list.add(cb.greaterThan(path, condition));
         }
     }
 
     /**
      * 大于等于
+     * @param path
      * @param condition
-     * @param fieldName
      * @param list
-     * @param from
      * @param cb
-     * @param <Y>
+     * @param <C>
      */
-    public static <Y extends Comparable<? super Y>> void greaterThanOrEqualTo(Y condition, String fieldName, List<Predicate> list, From<?, ?> from, CriteriaBuilder cb) {
+    public static <C extends Comparable<? super C>> void greaterThanOrEqualTo(Path<C> path, C condition, List<Predicate> list, CriteriaBuilder cb) {
         if (condition != null){
-            list.add(cb.greaterThanOrEqualTo(from.get(fieldName), condition));
+            list.add(cb.greaterThanOrEqualTo(path, condition));
         }
     }
 
     /**
      * 在范围内
-     * @param begin 开始 包含
-     * @param end 结束 包含
-     * @param fieldName 字段名
+     * @param path
+     * @param begin
+     * @param end
      * @param list
-     * @param from
      * @param cb
-     * @param <Y> 可比较的类型
+     * @param <C>
      */
-    public static <Y extends Comparable<? super Y>> void between(Y begin, Y end, String fieldName, List<Predicate> list, From<?, ?> from, CriteriaBuilder cb) {
-        list.add(cb.between(from.get(fieldName), begin, end));
+    public static <C extends Comparable<? super C>> void between(Path<C> path, C begin, C end, List<Predicate> list, CriteriaBuilder cb) {
+        list.add(cb.between(path, begin, end));
     }
 
     /**
      * in 操作
-     * @param condition 数据集合
-     * @param fieldName 字段名
+     * @param path
+     * @param condition
      * @param list
-     * @param from
+     * @param <Y>
      */
-    public static void in(Collection<?> condition, String fieldName, List<Predicate> list, From<?, ?> from) {
+    public static <Y> void in(Path<Y> path, Collection<?> condition, List<Predicate> list) {
         if (CollectionUtils.isNotEmpty(condition)){
-            list.add(from.get(fieldName).in(condition));
+            list.add(path.in(condition));
         }
     }
 
     /**
-     * not in 操作
-     * @param condition 数据集合
-     * @param fieldName 字段名
+     * in 操作
+     * @param path
+     * @param condition
      * @param list
-     * @param from
+     * @param <Y>
      */
-    public static void notIn(Collection<?> condition, String fieldName, List<Predicate> list, From<?, ?> from) {
+    public static <Y> void notIn(Path<Y> path, Collection<?> condition, List<Predicate> list) {
         if (CollectionUtils.isNotEmpty(condition)){
-            list.add(from.get(fieldName).in(condition).not());
+            list.add(path.in(condition).not());
         }
     }
 
     /**
      * 或 in ，in 指定的任意字段即可
-     * @param condition 条件
-     * @param fieldNames 字段集合，等于其中任意一个字段值即可
+     * @param pathes
+     * @param condition
      * @param list
-     * @param from
      * @param cb
+     * @param <Y>
      */
-    public static void inOr(Collection<?> condition, String[] fieldNames, List<Predicate> list, From<?, ?> from, CriteriaBuilder cb) {
+    public static <Y> void inOr(Path<Y>[] pathes, Collection<?> condition, List<Predicate> list, CriteriaBuilder cb) {
         if (CollectionUtils.isNotEmpty(condition)){
             List<Predicate> orList = new ArrayList<>();
-            for (String fieldName : fieldNames) {
-                orList.add(from.get(fieldName).in(condition));
+            for (Path<Y> path : pathes) {
+                orList.add(path.in(condition));
             }
             list.add(cb.or(orList.stream().toArray(Predicate[]::new)));
         }
     }
 
     /**
-     * in 操作
-     * @param condition 如果condition 为空集合，则设置条件为false
-     * @param fieldName
+     * in 操作, 如果condition 为空集合，则设置条件为false
+     * @param path
+     * @param condition
      * @param list
-     * @param from
      * @param cb
+     * @param <Y>
      */
-    public static void inWithEmptyFalse(Collection<?> condition, String fieldName, List<Predicate> list, From<?, ?> from, CriteriaBuilder cb) {
+    public static <Y> void inWithEmptyFalse(Path<Y> path, Collection<?> condition, List<Predicate> list, CriteriaBuilder cb) {
         if (CollectionUtils.isNotEmpty(condition)){
-            list.add(from.get(fieldName).in(condition));
+            list.add(path.in(condition));
         }else{
             setFalse(list, cb);
         }
     }
 
     /**
-     * 或 in ，in 指定的任意字段即可
-     * @param condition 条件，如果condition 为空集合，则设置条件为false
-     * @param fieldNames 字段集合，等于其中任意一个字段值即可
+     * 或 in ，in 指定的任意字段即可,如果condition 为空集合，则设置条件为false
+     * @param pathes
+     * @param condition
      * @param list
-     * @param from
      * @param cb
+     * @param <Y>
      */
-    public static void inOrWithEmptyFalse(Collection<?> condition, String[] fieldNames, List<Predicate> list, From<?, ?> from, CriteriaBuilder cb) {
+    public static <Y> void inOrWithEmptyFalse(Path<Y>[] pathes, Collection<?> condition, List<Predicate> list, CriteriaBuilder cb) {
         if (CollectionUtils.isNotEmpty(condition)){
             List<Predicate> orList = new ArrayList<>();
-            for (String fieldName : fieldNames) {
-                orList.add(from.get(fieldName).in(condition));
+            for (Path<Y> path : pathes) {
+                orList.add(path.in(condition));
             }
             list.add(cb.or(orList.stream().toArray(Predicate[]::new)));
         }else{
@@ -452,27 +430,26 @@ public class JpaUtil {
 
     /**
      * 指定字段不为空
-     * @param fieldName
+     * @param path
      * @param list
-     * @param from
+     * @param <Y>
      */
-    public static void isNotNull(String fieldName, List<Predicate> list, From<?, ?> from) {
-        list.add(from.get(fieldName).isNotNull());
+    public static <Y> void isNotNull(Path<Y> path, List<Predicate> list) {
+        list.add(path.isNotNull());
     }
 
     /**
      * 指定字段为空
-     * @param fieldName 字段名称
+     * @param path
      * @param list
-     * @param from
+     * @param <Y>
      */
-    public static void isNull(String fieldName, List<Predicate> list, From<?, ?> from) {
-        list.add(from.get(fieldName).isNull());
+    public static <Y> void isNull(Path<Y> path, List<Predicate> list) {
+        list.add(path.isNull());
     }
 
     /**
      * 设置查询条件为true
-     *
      * @param list
      * @param cb
      */
