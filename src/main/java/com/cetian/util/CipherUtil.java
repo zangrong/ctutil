@@ -14,8 +14,6 @@ package com.cetian.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -44,24 +42,24 @@ public class CipherUtil {
     public static final int AES_LENGTH = 128;
     public static final String AES_ECB_PKCS_5_PADDING = "AES/ECB/PKCS5Padding";
     public static final String AES_CBC_PKCS_5_PADDING = "AES/CBC/PKCS5Padding";
+    public static final String AES_CBC_NOPADDING = "AES_256/CBC/NoPadding";
     public static final String MD5 = "MD5";
     public static final String ENCODING_UTF8 = "utf-8";
     private static final String DES_KEY_ALGORITHM = "DESede";
 
-    // AES 密钥 BASE64
+    // AES 密钥 BASE64 只是个样例
     private static String AES_KEY_BASE64 = "KmXwkXWTC2Ky6s/ernuSRA==";
     // AES 密钥
     private static Key AES_KEY = aesKey(AES_KEY_BASE64);
 
     /**
      * 根据输入的base64编码文本，生成AES密钥
-     * @param base64 base64编码后的AES密钥
+     * @param encodingKey base64编码后的AES密钥
      * @return
      */
-    public static Key aesKey(String base64) {
+    public static Key aesKey(String encodingKey) {
         // 1、通过base64把密钥解码回字节数组
-        Base64 coder = new Base64();
-        byte[] keyString = coder.decode(base64);
+        byte[] keyString = new Base64().decode(encodingKey);
         // 2、根据字节数组生成AES密钥
         Key key = new SecretKeySpec(keyString, AES);
         return key;
@@ -89,84 +87,103 @@ public class CipherUtil {
         return keyString;
     }
 
-    public static String aesEncrypt(String plainText) {
-        String cipherText = null;
-        try {
-            Cipher cipher = Cipher.getInstance(AES_ECB_PKCS_5_PADDING);
-            cipher.init(Cipher.ENCRYPT_MODE, AES_KEY);
-            //将加密并编码后的内容解码成字节数组
-            byte[] result = cipher.doFinal(plainText.getBytes());
-            Base64 base64 = new Base64();
-            cipherText = base64.encodeAsString(result);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+    @Slf4j
+    public static class AesCipher{
+
+        private Base64 base64 = new Base64();
+        private Key key;// 密钥
+        private String transformation;
+        private IvParameterSpec iv;//偏移量
+
+        public AesCipher transformation(String transformation){
+            this.transformation = transformation;
+            return this;
         }
-        return cipherText;
+
+        public AesCipher key(Key key){
+            this.key = key;
+            return this;
+        }
+        public AesCipher key(String key){
+            byte[] keyBytes = base64.decode(key);
+            this.key = new SecretKeySpec(keyBytes, AES);
+            return this;
+        }
+        public AesCipher key(byte[] key){
+            this.key = new SecretKeySpec(key, AES);
+            return this;
+        }
+
+        public AesCipher iv(IvParameterSpec iv){
+            this.iv = iv;
+            return this;
+        }
+        public AesCipher iv(String iv){
+            byte[] ivBytes = base64.decode(iv);
+            this.iv = new IvParameterSpec(ivBytes);
+            return this;
+        }
+        public AesCipher iv(byte[] iv){
+            this.iv = new IvParameterSpec(iv);
+            return this;
+        }
+
+        public String decrypt(String cipherText){
+            byte[] cipherTextBytes = base64.decode(cipherText);
+            return decrypt(cipherTextBytes);
+        }
+        public String decrypt(byte[] cipherText) {
+            try {
+                Cipher cipher = Cipher.getInstance(transformation);
+                if (this.iv != null){
+                    cipher.init(Cipher.DECRYPT_MODE, this.key, this.iv);
+                }else{
+                    cipher.init(Cipher.DECRYPT_MODE, this.key);
+                }
+                //将加密并编码后的内容解码成字节数组
+                byte[] plainTextBytes = cipher.doFinal(cipherText);
+                return new String(plainTextBytes);
+            }catch (Exception e){
+                throw new RuntimeException(e);
+            }
+        }
+
+        public String encrypt(String plainText){
+            return encrypt(plainText.getBytes());
+        }
+        public String encrypt(byte[] plainText) {
+            try {
+                Cipher cipher = Cipher.getInstance(transformation);
+                if (this.iv != null){
+                    cipher.init(Cipher.ENCRYPT_MODE, this.key, this.iv);
+                }else{
+                    cipher.init(Cipher.ENCRYPT_MODE, this.key);
+                }
+                // 将明文加密成密文
+                byte[] cipherBytes = cipher.doFinal(plainText);
+                String cipherText = base64.encodeAsString(cipherBytes);
+                return cipherText;
+            }catch (Exception e){
+                throw new RuntimeException(e);
+            }
+        }
     }
 
-    public static String aesDecrypt(String cipherText) {
-        if(cipherText == null) return null;
-        String plainText = null;
-        try {
-            Cipher cipher = Cipher.getInstance(AES_ECB_PKCS_5_PADDING);
-            //初始化密码器，第一个参数为加密(Encrypt_mode)或者解密(Decrypt_mode)操作，第二个参数为使用的KEY
-            cipher.init(Cipher.DECRYPT_MODE, AES_KEY);
-            Base64 base64 = new Base64();
-            byte[] textBytes = base64.decode(cipherText);
-            textBytes = cipher.doFinal(textBytes);
-            plainText = new String(textBytes);
-        } catch (Exception e) {
-            log.warn("", e);
-        }
-        return plainText;
+    public static AesCipher aes(){
+        return new AesCipher();
     }
 
-    public static String aesEncrypt(String plainText, Key key) {
-        String cipherText = null;
-        try {
-            Cipher cipher = Cipher.getInstance(AES_ECB_PKCS_5_PADDING);
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-            //将加密并编码后的内容解码成字节数组
-            byte[] result = cipher.doFinal(plainText.getBytes());
-            Base64 base64 = new Base64();
-            cipherText = base64.encodeAsString(result);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-        return cipherText;
-    }
-
-    public static String aesDecrypt(String cipherText, Key key) {
-        String plainText = null;
-        try {
-            Cipher cipher = Cipher.getInstance(AES_ECB_PKCS_5_PADDING);
-            //初始化密码器，第一个参数为加密(Encrypt_mode)或者解密(Decrypt_mode)操作，第二个参数为使用的KEY
-            cipher.init(Cipher.DECRYPT_MODE, key);
-            Base64 base64 = new Base64();
-            byte[] textBytes = base64.decode(cipherText);
-            textBytes = cipher.doFinal(textBytes);
-            plainText = new String(textBytes);
-        } catch (Exception e) {
-            log.warn("", e);
-        }
-        return plainText;
-    }
-
-    public static String aesDecrypt(String algorithm, String key, String iv, String cipherText) {
+    public static String aesDecrypt(String algorithm, String key, IvParameterSpec iv, String cipherText) {
         String plainText = null;
         try {
             Cipher cipher = Cipher.getInstance(algorithm);
             Base64 base64 = new Base64();
             byte[] cipherTextBytes = base64.decode(cipherText);
             byte[] keyBytes = base64.decode(key);
-            byte[] ivBytes = base64.decode(iv);
             Key decryptKey = new SecretKeySpec(keyBytes, AES);
 
-            IvParameterSpec ivKey = new IvParameterSpec(ivBytes);
             //初始化密码器，第一个参数为加密(Encrypt_mode)或者解密(Decrypt_mode)操作，第二个参数为使用的KEY，第三个参数iv
-            cipher.init(Cipher.DECRYPT_MODE, decryptKey, ivKey);
+            cipher.init(Cipher.DECRYPT_MODE, decryptKey, iv);
             byte[] plainTextBytes = cipher.doFinal(cipherTextBytes);
             plainText = new String(plainTextBytes);
         } catch (Exception e) {
