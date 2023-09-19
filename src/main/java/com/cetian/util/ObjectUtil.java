@@ -112,11 +112,35 @@ public class ObjectUtil {
 		}
 	}
 
+	public static Long trimToLong(Object obj) {
+		if (obj == null) {
+			return null;
+		} else {
+			return Long.parseLong(obj.toString());
+		}
+	}
+
 	public static Integer trimToEmpty(Integer obj) {
 		if (obj == null) {
 			return 0;
 		} else {
 			return obj;
+		}
+	}
+
+	public static Integer trimToInteger(Object obj) {
+		if (obj == null) {
+			return null;
+		} else {
+			return Integer.parseInt(obj.toString());
+		}
+	}
+
+	public static Double trimToDouble(Object obj) {
+		if (obj == null) {
+			return null;
+		} else {
+			return Double.parseDouble(obj.toString());
 		}
 	}
 

@@ -116,6 +116,42 @@ public class NumberUtil {
 			return "";
 		}
 	}
+
+	public static String toBigChinese(int i) {
+		if (i < 0) {
+			return "";
+		} else if (i >= 0 && i <= 10) {
+			switch (i) {
+				case 0:
+					return "零";
+				case 1:
+					return "壹";
+				case 2:
+					return "贰";
+				case 3:
+					return "叁";
+				case 4:
+					return "肆";
+				case 5:
+					return "伍";
+				case 6:
+					return "陆";
+				case 7:
+					return "柒";
+				case 8:
+					return "捌";
+				case 9:
+					return "玖";
+				case 10:
+					return "拾";
+				default:
+					return "";
+			}
+		} else {
+			// TODO 10以上暂不处理
+			return "";
+		}
+	}
 	
 	/**
 	 * @Title: longToInt   
