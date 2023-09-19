@@ -20,10 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @Description:
@@ -38,6 +37,17 @@ public class StringUtil {
     public static final String CHARSET_GB2312 = "GB2312";
     public static final String CHARSET_ISO8859_1 = "ISO8859-1";
     public static final String CHARSET_UTF_8 = "UTF-8";
+
+    private static Pattern pattern = Pattern.compile("((?<=\\{)([a-zA-Z_]{1,})(?=\\}))");
+    public static String replace(String text, Map<String, Object> map) {
+        Matcher matcher = pattern.matcher(text);
+        while (matcher.find()) {
+            String key = matcher.group();
+            text = text.replaceAll("\\{" + key + "\\}", map.get(key) + "");
+        }
+
+        return text;
+    }
 
     /**
      * text transform from one charset to another
