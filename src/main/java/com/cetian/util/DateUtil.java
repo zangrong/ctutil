@@ -2,7 +2,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -55,7 +55,8 @@ public class DateUtil {
     public static final String DURATION_FORMAT_DAY = "d天 H时 m分";
     public static final String DURATION_FORMAT_CN = " m 分 s 秒";
 
-    private DateUtil(){}
+    private DateUtil() {
+    }
 
     /**
      * 通过给定字符串格式解析文本到 ISO-8601 日期，
@@ -64,27 +65,27 @@ public class DateUtil {
      * @param text     要解析的文本
      * @return 格式后的日期对象
      */
-    public static LocalDate parseAsLocalDate(String pattern, String text){
+    public static LocalDate parseAsLocalDate(String pattern, String text) {
         return LocalDate.from(DateTimeFormatter.ofPattern(pattern).parse(text));
     }
 
-    public static LocalDateTime parseAsLocalDateTime(String pattern, String text){
+    public static LocalDateTime parseAsLocalDateTime(String pattern, String text) {
         return LocalDateTime.from(DateTimeFormatter.ofPattern(pattern).parse(text));
     }
 
-    public static Date parseAsDate(String pattern, String text){
+    public static Date parseAsDate(String pattern, String text) {
         return toDate(parseAsLocalDate(pattern, text));
     }
 
-    public static Date parseAsDate(String pattern, String text, ZoneId zoneId){
+    public static Date parseAsDate(String pattern, String text, ZoneId zoneId) {
         return toDate(parseAsLocalDate(pattern, text), zoneId);
     }
 
-    public static Date toDate(LocalDate localDate){
+    public static Date toDate(LocalDate localDate) {
         return toDate(localDate, ZoneId.systemDefault());
     }
 
-    public static Date toDate(LocalDate localDate, ZoneId zoneId){
+    public static Date toDate(LocalDate localDate, ZoneId zoneId) {
         return Date.from(localDate.atStartOfDay(zoneId).toInstant());
     }
 
@@ -98,17 +99,18 @@ public class DateUtil {
 
     /**
      * 当前日期后指定跨度的日期
-     * 
+     *
      * @param currentDate 当前日期
      * @param amountToAdd 跨度，不允许负数
      * @param unit        跨度单位
      * @return 当前时间在指定跨度长度后端日期
      */
-    public static Date before(Date currentDate, int amountToAdd, TemporalUnit unit){
+    public static Date before(Date currentDate, int amountToAdd, TemporalUnit unit) {
         if (amountToAdd < 0) {
             throw new IllegalArgumentException("days 参数必须大于等于0");
         }
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(currentDate.toInstant(), ZoneId.systemDefault()).plus(amountToAdd, unit);
+        LocalDateTime localDateTime =
+                LocalDateTime.ofInstant(currentDate.toInstant(), ZoneId.systemDefault()).plus(amountToAdd, unit);
         return toDate(localDateTime);
     }
 
@@ -118,23 +120,24 @@ public class DateUtil {
      * @param days        天数，不能为负
      * @return 当前日期后指定天数后的日期
      */
-    public static Date before(Date currentDate, int days){
+    public static Date before(Date currentDate, int days) {
         return before(currentDate, days, ChronoUnit.DAYS);
     }
 
     /**
      * 当前日期前指定跨度的日期
-     * 
+     *
      * @param currentDate 当前日期
      * @param amountToAdd 跨度，不允许负数
      * @param unit        跨度单位
      * @return 当前时间在指定跨度长度前端日期
      */
-    public static Date after(Date currentDate, int amountToAdd, TemporalUnit unit){
+    public static Date after(Date currentDate, int amountToAdd, TemporalUnit unit) {
         if (amountToAdd < 0) {
             throw new IllegalArgumentException("days 参数必须大于等于0");
         }
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(currentDate.toInstant(), ZoneId.systemDefault()).plus(amountToAdd, unit);
+        LocalDateTime localDateTime =
+                LocalDateTime.ofInstant(currentDate.toInstant(), ZoneId.systemDefault()).plus(amountToAdd, unit);
         return toDate(localDateTime);
     }
 
@@ -144,146 +147,20 @@ public class DateUtil {
      * @param days        天数，不能为负
      * @return 当前日期后指定天数前的日期
      */
-    public static Date after(Date currentDate, int days){
+    public static Date after(Date currentDate, int days) {
         return before(currentDate, days, ChronoUnit.DAYS);
     }
 
     /**
      * 格式化日期对象
-     * 
+     *
      * @param date     要格式化的日期对象
      * @param pattern  字符串格式
-     * @return  符合给定字符串格式的日期字符串
+     * @return 符合给定字符串格式的日期字符串
      */
-    public static String format(Date date, String pattern){
+    public static String format(Date date, String pattern) {
         LocalDateTime localDateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         return DateTimeFormatter.ofPattern(pattern).format(localDateTime);
-    }
-
-    /**
-     * @param date
-     * @Title: dateToString
-     * @Description: 把Date转成字符串(yyyy - MM - dd)
-     * @return: String
-     * @throws:
-     */
-    public static String dateToString(Date date) {
-        if (date == null) {
-            return "";
-        }
-        String dateText = DateFormatUtils.format(date, DATE_FORMAT);
-        return dateText;
-    }
-
-    /**
-     * @param dateLong
-     * @Title: longToDate
-     * @Description: 把Long转换为Date对象，Long精确到秒
-     * @return: Date
-     * @throws:
-     */
-    public static Date longToDate(Long dateLong) {
-        if (dateLong == null) {
-            return null;
-        }
-        Calendar date = Calendar.getInstance();
-        date.setTimeInMillis(dateLong * 1000);
-        return date.getTime();
-    }
-
-    /**
-     * @param date
-     * @Title: dateToStringdt
-     * @Description: 把Date转成字符串(yyyy - MM - dd HH : mm : ss)
-     * @return: String
-     * @throws:
-     */
-    public static String dateToStringdt(Date date) {
-        if (date == null) {
-            return "";
-        }
-        String dateText = DateFormatUtils.format(date, DATETIME_FORMAT_1);
-        return dateText;
-    }
-
-    /**
-     * @param date
-     * @Title: dateToStringSlash
-     * @Description: 把Date转成字符串(yyyy / M / d)
-     * @return: String
-     * @throws:
-     */
-    public static String dateToStringSlash(Date date) {
-        if (date == null) {
-            return "";
-        }
-        String dateText = DateFormatUtils.format(date, DATE_FORMAT_SLASH);
-        return dateText;
-    }
-
-    /**
-     * @param date
-     * @Title: dateToStringCn
-     * @Description: 把Date转成字符串(yyyy年MM月dd日)
-     * @return: String
-     * @throws:
-     */
-    public static String dateToStringCn(Date date) {
-        if (date == null) {
-            return "";
-        }
-        String dateText = DateFormatUtils.format(date, DATE_FORMAT_CN);
-        return dateText;
-    }
-
-    /**
-     * @param date
-     * @Title: dateToLong
-     * @Description: date对象转成Long，单位精确到秒
-     * @return: Long
-     * @throws:
-     */
-    public static Long dateToLong(Date date) {
-        if (date == null) {
-            return null;
-        }
-        return date.getTime() / 1000;
-    }
-
-    /**
-     * 把字符串(yyyy-MM-dd)转成Date
-     *
-     * @param string
-     * @return
-     */
-    public static Date stringToDate(String string) {
-        Date date = null;
-        if (StringUtils.isBlank(string)) {
-            return date;
-        }
-        try {
-            date = DateUtils.parseDate(string, DATE_FORMAT);
-        } catch (Exception e) {
-            // log.error("", e);
-        }
-        return date;
-    }
-
-    /**
-     * @param str 2017-09-25 15:02:05
-     * @Title: stringdtToDate
-     * @Description: 把字符串(yyyy - MM - dd HH : mm : ss)转换为Date
-     * @return: Long
-     * @throws:
-     */
-    public static Date stringdtToDate(String str) {
-        Date date = null;
-        try {
-            date = DateUtils.parseDate(str, DATETIME_FORMAT_1);
-        } catch (ParseException e) {
-            // log.error("", e);
-        }
-        return date;
     }
 
     /**
@@ -294,7 +171,8 @@ public class DateUtil {
      */
     public static int getDayFromNow(String remoteDate) {
         Date now = DateUtils.truncate(new Date(), Calendar.DATE);
-        return (int) between(now, DateUtils.truncate(DateUtil.stringToDate(remoteDate), Calendar.DATE), Calendar.DATE);
+        return (int) between(now, DateUtils.truncate(DateUtil.from(remoteDate).to(Date.class), Calendar.DATE),
+                Calendar.DATE);
     }
 
     /**
@@ -450,7 +328,8 @@ public class DateUtil {
                 // 周日
                 cal.add(Calendar.DATE, -6);
                 break;
-                default: throw new IllegalArgumentException();
+            default:
+                throw new IllegalArgumentException();
         }
         // 周一00:00:00
         Date start = DateUtils.truncate(cal.getTime(), Calendar.DATE);
@@ -465,8 +344,8 @@ public class DateUtil {
     public static String[] weekRangeString(Date date) {
         Date[] range = weekRange(date);
         String[] rangeString = new String[2];
-        rangeString[0] = dateToString(range[0]);
-        rangeString[1] = dateToString(range[1]);
+        rangeString[0] = from(range[0]).to(String.class);
+        rangeString[1] = from(range[1]).to(String.class);
         return rangeString;
     }
 
@@ -506,9 +385,22 @@ public class DateUtil {
         // 获取当月最后一天 23:59:59
         Date end = DateUtils.ceiling(date, Calendar.MONTH);
         end = DateUtils.addSeconds(end, -1);
-        month[0] = dateToString(begin);
-        month[1] = dateToString(end);
+        month[0] = from(begin).to(String.class);
+        month[1] = from(end).to(String.class);
         return month;
+    }
+
+    public static String beginOfMonth(String date) {
+        // 获取开始日期 1号00:00:00
+        Date begin = DateUtils.truncate(date, Calendar.MONTH);
+        return from(begin).to(String.class);
+    }
+
+    public static String endOfMonth(String date) {
+        // 获取当月最后一天 23:59:59
+        Date end = DateUtils.ceiling(date, Calendar.MONTH);
+        end = DateUtils.addSeconds(end, -1);
+        return from(end).to(String.class);
     }
 
     /**
@@ -598,15 +490,6 @@ public class DateUtil {
         return dateText;
     }
 
-    /**
-     * @param dayAmount
-     * @return yyyy-MM-dd
-     */
-    public static String dateString(int dayAmount) {
-        Date date = DateUtils.addDays(new Date(), dayAmount);
-        return dateToString(date);
-    }
-
     public static Date[] range(Integer year, Integer month) {
         Date[] range = new Date[2];
         if (year == null && month == null) {
@@ -656,14 +539,14 @@ public class DateUtil {
         if (days >= 0) {
             int i = 0;
             do {
-                dates.add(DateUtil.dateToString(date));
+                dates.add(DateUtil.from(date).to(String.class));
                 date = DateUtils.addDays(date, 1);
                 i++;
             } while (i < days);
         } else {
             int i = 0;
             do {
-                dates.add(DateUtil.dateToString(date));
+                dates.add(DateUtil.from(date).to(String.class));
                 date = DateUtils.addDays(date, -1);
                 i--;
             } while (i > days);
@@ -672,11 +555,11 @@ public class DateUtil {
     }
 
     public static List<String> dateList(String dateBegin, String dateEnd) {
-        Date begin = DateUtil.stringToDate(dateBegin);
-        Date end = stringToDate(dateEnd);
+        Date begin = from(dateBegin).to(Date.class);
+        Date end = from(dateEnd).to(Date.class);
         List<String> dates = new ArrayList<>();
         while (!begin.after(end)) {
-            dates.add(dateToString(begin));
+            dates.add(from(begin).to(String.class));
             begin = DateUtils.addDays(begin, 1);
         }
         return dates;
@@ -688,10 +571,10 @@ public class DateUtil {
      * @return
      */
     public static String lastYear(String date, int dayOffset) {
-        Date dateLastYear = stringToDate(date);
+        Date dateLastYear = from(date).to(Date.class);
         dateLastYear = DateUtils.addDays(dateLastYear, dayOffset);
         dateLastYear = DateUtils.addYears(dateLastYear, -1);
-        String dateLastYearStr = dateToString(dateLastYear);
+        String dateLastYearStr = from(dateLastYear).to(String.class);
         return dateLastYearStr;
     }
 
@@ -702,7 +585,7 @@ public class DateUtil {
      * @return
      */
     public static int getMonth(String dateStr) {
-        Date date = stringToDate(dateStr);
+        Date date = from(dateStr).to(Date.class);
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         return cal.get(Calendar.MONTH) + 1;
@@ -737,7 +620,7 @@ public class DateUtil {
     }
 
     public static String addDays(String date, int days) {
-        return dateToString(DateUtils.addDays(stringToDate(date), days));
+        return from(DateUtils.addDays(from(date).to(Date.class), days)).to(String.class);
     }
 
     /**
@@ -747,7 +630,7 @@ public class DateUtil {
      * @return
      */
     public static int weekDay(String date) {
-        return weekDay(stringToDate(date));
+        return weekDay(from(date).to(Date.class));
     }
 
     /**
@@ -801,7 +684,8 @@ public class DateUtil {
                 return "星期五";
             case 6:
                 return "星期六";
-                default: return "未知";
+            default:
+                return "未知";
         }
     }
 
@@ -815,8 +699,8 @@ public class DateUtil {
     public static String[] datetimeRange(Date date) {
         Date[] dayRange = dayRange(date);
         String[] datetimes = new String[2];
-        datetimes[0] = dateToStringdt(dayRange[0]);
-        datetimes[1] = dateToStringdt(dayRange[1]);
+        datetimes[0] = from(dayRange[0]).setDateFormat(DATETIME_FORMAT_1).to(String.class);
+        datetimes[1] = from(dayRange[1]).setDateFormat(DATETIME_FORMAT_1).to(String.class);
         return datetimes;
     }
 
@@ -829,42 +713,18 @@ public class DateUtil {
      */
     public static String weekRelativeDay(String date, int year) {
         int weekDay = weekDay(date);
-        Date dateValue = stringToDate(date);
+        Date dateValue = from(date).to(Date.class);
         Date targetValue = DateUtils.setYears(dateValue, year);
         int targetWeekDay = weekDay(targetValue);
         targetValue = DateUtils.addDays(targetValue, weekDay - targetWeekDay);
-        return dateToString(targetValue);
+        return from(targetValue).to(String.class);
     }
 
     public static String relativeDay(String date, int year, int offset) {
-        Date dateValue = stringToDate(date);
+        Date dateValue = from(date).to(Date.class);
         Date targetValue = DateUtils.setYears(dateValue, year);
         targetValue = DateUtils.addDays(targetValue, offset);
-        return dateToString(targetValue);
-    }
-
-    /**
-     * 获取今天开始时间
-     */
-    public static Long getTodayStartTime() {
-        Calendar todayStart = Calendar.getInstance();
-        todayStart.set(Calendar.HOUR, 0);
-        todayStart.set(Calendar.MINUTE, 0);
-        todayStart.set(Calendar.SECOND, 0);
-        todayStart.set(Calendar.MILLISECOND, 0);
-        return todayStart.getTime().getTime();
-    }
-
-    /**
-     * 获取今天结束时间
-     */
-    public static Long getTodayEndTime() {
-        Calendar todayEnd = Calendar.getInstance();
-        todayEnd.set(Calendar.HOUR, 23);
-        todayEnd.set(Calendar.MINUTE, 59);
-        todayEnd.set(Calendar.SECOND, 59);
-        todayEnd.set(Calendar.MILLISECOND, 999);
-        return todayEnd.getTime().getTime();
+        return from(targetValue).to(String.class);
     }
 
     public static int[] getYearAndMonth(Date day) {
@@ -883,73 +743,102 @@ public class DateUtil {
         return new int[]{year, week};
     }
 
-    public static DateConvertor from(Object src){
+    public static DateConvertor from(Object src) {
         return new DateConvertor(src);
     }
 
     @Slf4j
-    public static class DateConvertor{
+    public static class DateConvertor {
         private Date temp;
         private Object src;
         private String dateFormat;
 
-        public DateConvertor(Object src){
+        public DateConvertor(Object src) {
             this.src = src;
         }
 
-        public DateConvertor setDateFormat(String dateFormat){
+        public DateConvertor setDateFormat(String dateFormat) {
             this.dateFormat = dateFormat;
             return this;
         }
 
-        public <T> T to(Class<T> clazz){
-            if (this.src == null){
+        /**
+         * @param dateLong
+         * @Title: longToDate
+         * @Description: 把Long转换为Date对象，Long精确到秒
+         * @return: Date
+         * @throws:
+         */
+        public static Date longToDate(Long dateLong) {
+            if (dateLong == null) {
+                return null;
+            }
+            Calendar date = Calendar.getInstance();
+            date.setTimeInMillis(dateLong * 1000);
+            return date.getTime();
+        }
+
+        /**
+         * @param date
+         * @Title: dateToLong
+         * @Description: date对象转成Long，单位精确到秒
+         * @return: Long
+         * @throws:
+         */
+        public static Long dateToLong(Date date) {
+            if (date == null) {
+                return null;
+            }
+            return date.getTime() / 1000;
+        }
+
+        public <T> T to(Class<T> clazz) {
+            if (this.src == null) {
                 return null;
             }
 
             // 先转成中间日期对象 temp
-            if (this.src instanceof String){
+            if (this.src instanceof String) {
                 try {
-                    if (StringUtils.isBlank(this.dateFormat)){
-                        this.temp = DateUtils.parseDate((String)this.src, DateUtil.DATE_FORMAT);
-                    }else{
-                        temp = DateUtils.parseDate((String)this.src, this.dateFormat);
+                    if (StringUtils.isBlank(this.dateFormat)) {
+                        this.temp = DateUtils.parseDate((String) this.src, DateUtil.DATE_FORMAT);
+                    } else {
+                        temp = DateUtils.parseDate((String) this.src, this.dateFormat);
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     log.warn("日期转换异常[{}] 格式[{}]", this.src, this.dateFormat);
                     log.warn("日期转换异常", e);
                 }
-            }else if(src instanceof Date){
-                temp = (Date)src;
-            }else if (src instanceof Calendar){
+            } else if (src instanceof Date) {
+                temp = (Date) src;
+            } else if (src instanceof Calendar) {
                 temp = ((Calendar) src).getTime();
-            }else if (src instanceof Long){
+            } else if (src instanceof Long) {
                 // 如果是微秒的要转换成秒，这里会丢失微秒精度
                 Long val = (Long) src;
-                if (Long.toString((Long) src).length() == 13){
+                if (Long.toString((Long) src).length() == 13) {
                     val = val / 1000;
                 }
                 temp = longToDate(val);
             }
 
-
-            if (temp == null){
+            if (temp == null) {
                 return null;
             }
             // 转成目标对象类型
-            if (clazz == String.class){
-                if (StringUtils.isBlank(this.dateFormat)){
+            if (clazz == String.class) {
+                if (StringUtils.isBlank(this.dateFormat)) {
                     return (T) DateFormatUtils.format(this.temp, DATE_FORMAT);
-                }else{
+                } else {
                     return (T) DateFormatUtils.format(this.temp, this.dateFormat);
                 }
-            }else if (clazz == Date.class){
+            } else if (clazz == Date.class) {
                 return (T) temp;
-            }else if (clazz == Calendar.class){
+            } else if (clazz == Calendar.class) {
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(temp);
                 return (T) cal;
-            }else if (clazz == Long.class){
+            } else if (clazz == Long.class) {
                 return (T) dateToLong(temp);
             }
             throw new IllegalArgumentException("转换日期的目标类型不正确");
