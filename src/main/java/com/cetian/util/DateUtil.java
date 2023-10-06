@@ -392,13 +392,13 @@ public class DateUtil {
 
     public static String beginOfMonth(String date) {
         // 获取开始日期 1号00:00:00
-        Date begin = DateUtils.truncate(date, Calendar.MONTH);
+        Date begin = DateUtils.truncate(from(date).to(Date.class), Calendar.MONTH);
         return from(begin).to(String.class);
     }
 
     public static String endOfMonth(String date) {
         // 获取当月最后一天 23:59:59
-        Date end = DateUtils.ceiling(date, Calendar.MONTH);
+        Date end = DateUtils.ceiling(from(date).to(Date.class), Calendar.MONTH);
         end = DateUtils.addSeconds(end, -1);
         return from(end).to(String.class);
     }
