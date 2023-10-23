@@ -186,7 +186,16 @@ public class ExcelUtil {
      * @param content
      */
     public static void writeToCell(Row row, int columnIndex, Object content){
-         Cell cell = row.createCell(columnIndex);
+        Cell cell = row.createCell(columnIndex);
+        cell.setCellValue(ObjectUtil.trimToEmpty(content));
+    }
+
+    public static void writeToCellWithWrap(Row row, int columnIndex, Object content){
+        Cell cell = row.createCell(columnIndex);
+        CellStyle cellStyle = cell.getCellStyle();
+        if (cellStyle != null){
+            cellStyle.setWrapText(true);
+        }
         cell.setCellValue(ObjectUtil.trimToEmpty(content));
     }
 

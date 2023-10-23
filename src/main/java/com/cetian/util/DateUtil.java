@@ -12,18 +12,13 @@
  */
 package com.cetian.util;
 
-import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.apache.poi.ss.formula.functions.T;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -624,7 +619,7 @@ public class DateUtil {
     }
 
     /**
-     * 返回当前日期的星期，周一到周六 1-6，周日 0
+     * 返回当前日期的星期，周一到周六 1-6，周日 7
      *
      * @param date
      * @return
@@ -634,7 +629,7 @@ public class DateUtil {
     }
 
     /**
-     * 返回当前日期的星期，周一到周六 1-6，周日 0
+     * 返回当前日期的星期，周一到周六 1-6，周日 7
      *
      * @param date
      * @return
@@ -642,15 +637,143 @@ public class DateUtil {
     public static int weekDay(Date date) {
         Calendar cal = Calendar.getInstance(Locale.CHINA);
         cal.setTime(date);
-        // 周一到周六 1-6，周日 0
+        // 周一到周六 1-6，周日 7
         int weekDay = cal.get(Calendar.DAY_OF_WEEK) - 1;
+        if(weekDay == 0){
+            weekDay = 7;
+        }
         return weekDay;
     }
 
     /**
+     * 获取一年的所有周
+     * 周的概念以中式习惯为准，一个完整周是从周一到周日
+     * 一年以第一个达到4天的周作为第一周
+     * @param year
+     * @return
+     */
+    public static List<String[]> getWeeksOfYear(int year){
+        List<String[]> weeks = new ArrayList<>();
+        // 找到当年1月1日
+        String yearBegin = String.format("%s-01-01", year);
+        // 获得元旦是星期几
+        int weekDay = weekDay(yearBegin);
+        String weekBegin = null;
+        String weekEnd = null;
+        if (weekDay <= 4){
+            // 元旦属于当年第一周
+            // 元旦所在周有4天及以上属于当年，则该周为当年第一周
+            weekBegin = addDays(yearBegin, -(weekDay-1));
+            weekEnd = addDays(weekBegin, 6);
+        }else{
+            // 元旦不属于当年第一周
+            // 元旦所在周小于等于3天属于当年，则该周为上年最后一周，下周属于当年第一周
+            weekBegin = addDays(yearBegin, 7 - weekDay + 1);
+            weekEnd = addDays(weekBegin, 6);
+        }
+        weeks.add(ArrayUtils.toArray(weekBegin, weekEnd));
+
+        // 下一年元旦
+        String nextYearBegin = String.format("%s-01-01", year + 1);
+
+        while (true){
+            weekBegin = addDays(weekBegin, 7);
+            weekEnd = addDays(weekEnd, 7);
+            if (isBetween(nextYearBegin, weekBegin, weekEnd)){
+                // 如果当周包含下年元旦，就要判断当周是否属于本年或是下一年
+                int nextYearWeekDay = DateUtil.weekDay(nextYearBegin);
+                // 元旦所在周小于等于3天属于下年，则该周为当年最后一周
+                if (!(nextYearWeekDay <= 4)){
+                    // 下年元旦属于本年最后一周
+                    weeks.add(ArrayUtils.toArray(weekBegin, weekEnd));
+                }
+                break;
+            }
+            weeks.add(ArrayUtils.toArray(weekBegin, weekEnd));
+        }
+        return weeks;
+    }
+
+    /**
+     * 获取一年的第n周
+     * 周的概念以中式习惯为准，一个完整周是从周一到周日
+     * @param year
+     * @param weekNum 1 ... 52
+     * @return
+     */
+    public static String[] getWeekOfYear(int year, int weekNum){
+        if (weekNum < 1 ||weekNum > 52){
+            throw new IllegalArgumentException("周的有效范围是1-52");
+        }
+        List<String[]> weeks = getWeeksOfYear(year);
+        return weeks.get(weekNum-1);
+    }
+
+    /**
+     * 获取当日所对应的周
+     * 周的概念以中式习惯为准，一个完整周是从周一到周日
+     * @param date yyyy-MM-dd
+     * @return weekBegin, weekEnd
+     */
+    public static String[] getWeekByDate(String date){
+        int weekDay = weekDay(date);
+        String weekBegin = addDays(date, 1 - weekDay);
+        String weekEnd = addDays(date, 7 - weekDay);
+
+        return new String[]{weekBegin, weekEnd};
+    }
+
+    /**
+     * 获取当日所对应的年和周
+     * 周的概念以中式习惯为准，一个完整周是从周一到周日
+     * @param date yyyy-MM-dd
+     * @return year, weekNum
+     */
+    public static int[] getYearAndWeek(String date){
+        int year = Integer.parseInt(StringUtils.substring(date, 0, 4));
+        // 获取当年所有周
+        List<String[]> weeks = getWeeksOfYear(year);
+        // 尝试当年中的正常周
+        for (int i = 0;i <weeks.size(); i++) {
+            String[] inWeek = weeks.get(i);
+            if (isBetween(date, inWeek[0], inWeek[1])){
+                return new int[]{year, i+1};
+            }
+        }
+        // 获取当日所在周
+        String[] week = getWeekByDate(date);
+        // 获取当日所在年元旦
+        String yearBegin = String.format("%s-01-01", year);
+        if (isBetween(yearBegin, week[0], week[1])){
+            // 如果当日所在周包含当年元旦，但是因为当年没匹配到
+            // 所以到上年周匹配
+            int lastYear = year - 1;
+            List<String[]> lastYearWeeks = getWeeksOfYear(lastYear);
+            for (int i = 0;i <lastYearWeeks.size(); i++) {
+                String[] inWeek = lastYearWeeks.get(i);
+                if (isBetween(date, inWeek[0], inWeek[1])){
+                    return new int[]{lastYear, i+1};
+                }
+            }
+        }else{
+            // 在下年里匹配
+            int nextYear = year+1;
+            List<String[]> nextYearWeeks = getWeeksOfYear(nextYear);
+            for (int i = 0;i <nextYearWeeks.size(); i++) {
+                String[] inWeek = nextYearWeeks.get(i);
+                if (isBetween(date, inWeek[0], inWeek[1])){
+                    return new int[]{nextYear, i+1};
+                }
+            }
+        }
+        throw new RuntimeException(String.format("[%s]获取年周信息异常", date));
+    }
+
+
+    /**
      * 判断传入的日期是否匹配 星期
      *
-     * @param weekDays 星期 0123456
+     * @param weekDays 星期 1234567
      * @param date     2020-10-10
      * @return
      */
@@ -663,14 +786,14 @@ public class DateUtil {
     }
 
     /**
-     * 返回当前日期的星期，周一到周六 1-6，周日 0
+     * 返回当前日期的星期，周一到周六 1-6，周日 7
      *
      * @param date
      * @return
      */
     public static String weekDayChinese(String date) {
         switch (weekDay(date)) {
-            case 0:
+            case 7:
                 return "星期日";
             case 1:
                 return "星期一";
@@ -733,14 +856,6 @@ public class DateUtil {
         int year = cal.get(Calendar.YEAR);
         int month = cal.get(Calendar.MONTH) + 1;
         return new int[]{year, month};
-    }
-
-    public static int[] getYearAndWeek(Date day) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(day);// 根据周一确定 年 和 周
-        int year = cal.get(Calendar.YEAR);
-        int week = cal.get(Calendar.WEEK_OF_YEAR);
-        return new int[]{year, week};
     }
 
     public static DateConvertor from(Object src) {
