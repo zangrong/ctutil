@@ -69,12 +69,13 @@ public class ExcelUtil {
             return value;
         }
         try{
-            String temp = StringUtils.trimToNull(cell.getStringCellValue());
-            value = Double.parseDouble(temp);
+            // 先尝试直接用数字获取
+            value = cell.getNumericCellValue();
         }catch(Exception e){
-            log.warn("", e);
             try{
-                value = cell.getNumericCellValue();
+                // 再尝试尝试用字符串解析
+                String temp = StringUtils.trimToNull(cell.getStringCellValue());
+                value = Double.parseDouble(temp);
             }catch(Exception ex){
                 log.warn("", ex);
             }
