@@ -290,6 +290,18 @@ public class DateUtil {
     }
 
     /**
+     * 传入日期 yyyy-MM-dd 返回，对应日期的 23:59:59的date对象
+     * @param date
+     * @return
+     */
+    public static Date getDayEnd(String date){
+        Date temp = from(date).to(Date.class);
+        temp = DateUtils.ceiling(temp, Calendar.DATE);
+        temp = DateUtils.addSeconds(temp, -1);
+        return temp;
+    }
+
+    /**
      * @Title: weekRange
      * @Description: 传入一个日期，获取该日期所在周的开始和结束日期，精确到秒<br>
      *               注意，这里采用中国传统常识: 周的开始日期是周一，周的结束日期是周日<br>
