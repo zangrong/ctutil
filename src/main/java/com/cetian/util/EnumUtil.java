@@ -15,6 +15,7 @@ package com.cetian.util;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.formula.functions.T;
 
 import java.util.Collections;
 import java.util.List;
@@ -121,6 +122,17 @@ public class EnumUtil {
             return "";
         }
         return ReflectionUtil.getFieldValueString(dest, "name");
+    }
+
+    public static <E extends Enum<E>> E convertFromFieldValue(String fieldName, String value, Class<E> enumClass){
+        List<E> enumList = EnumUtils.getEnumList(enumClass);
+        for (E e : enumList) {
+            String eValue =  ReflectionUtil.getFieldValueString(e, fieldName);
+            if (StringUtils.equals(value, eValue)){
+                return e;
+            }
+        }
+        return null;
     }
 
 }
