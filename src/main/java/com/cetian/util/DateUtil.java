@@ -356,6 +356,14 @@ public class DateUtil {
         return rangeString;
     }
 
+    public static Date[] monthRange(String date) {
+        return monthRange(from(date).to(Date.class));
+    }
+
+    public static String[] monthRangeString(String date) {
+        return monthRangeString(from(date).to(Date.class));
+    }
+
     /**
      * @param date
      * @Title: monthRange
@@ -386,14 +394,10 @@ public class DateUtil {
      * @throws:
      */
     public static String[] monthRangeString(Date date) {
+        Date[] dates = monthRange(date);
         String[] month = new String[2];
-        // 先获取开始日期 1号00:00:00
-        Date begin = DateUtils.truncate(date, Calendar.MONTH);
-        // 获取当月最后一天 23:59:59
-        Date end = DateUtils.ceiling(date, Calendar.MONTH);
-        end = DateUtils.addSeconds(end, -1);
-        month[0] = from(begin).to(String.class);
-        month[1] = from(end).to(String.class);
+        month[0] = from(dates[0]).to(String.class);
+        month[1] = from(dates[1]).to(String.class);
         return month;
     }
 
