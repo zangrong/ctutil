@@ -631,13 +631,43 @@ public class DateUtil {
     }
 
     /**
+     * 国际标准，周日开始
+     * 周日: 1
+     * 周一: 2
+     * ...
+     * 周六: 7
+     * @param date
+     * @return
+     */
+    public static int weekDay(String date){
+        Calendar cal = from(date).to(Calendar.class);
+        return cal.get(Calendar.DAY_OF_WEEK);
+    }
+
+    public static String[] getWeekByDate(String date){
+        int weekDay = weekDay(date);
+        String weekBegin = addDays(date, 1 - weekDay);
+        String weekEnd = addDays(date, 7 - weekDay);
+        return new String[]{weekBegin, weekEnd};
+    }
+
+    public static int[] getYearAndWeek(String date){
+        Calendar cal = from(date).to(Calendar.class);
+        int[] result = new int[2];
+        result[0] = cal.get(Calendar.YEAR);
+        result[1] = cal.get(Calendar.WEEK_OF_YEAR);
+        return result;
+    }
+
+
+    /**
      * 返回当前日期的星期，周一到周六 1-6，周日 7
      *
      * @param date
      * @return
      */
-    public static int weekDay(String date) {
-        return weekDay(from(date).to(Date.class));
+    public static int weekDayCn(String date) {
+        return weekDayCn(from(date).to(Date.class));
     }
 
     /**
@@ -646,7 +676,7 @@ public class DateUtil {
      * @param date
      * @return
      */
-    public static int weekDay(Date date) {
+    public static int weekDayCn(Date date) {
         Calendar cal = Calendar.getInstance(Locale.CHINA);
         cal.setTime(date);
         // 周一到周六 1-6，周日 7
@@ -664,12 +694,12 @@ public class DateUtil {
      * @param year
      * @return
      */
-    public static List<String[]> getWeeksOfYear(int year){
+    public static List<String[]> getWeeksOfYearCn(int year){
         List<String[]> weeks = new ArrayList<>();
         // 找到当年1月1日
         String yearBegin = String.format("%s-01-01", year);
         // 获得元旦是星期几
-        int weekDay = weekDay(yearBegin);
+        int weekDay = weekDayCn(yearBegin);
         String weekBegin = null;
         String weekEnd = null;
         if (weekDay <= 4){
@@ -693,7 +723,7 @@ public class DateUtil {
             weekEnd = addDays(weekEnd, 7);
             if (isBetween(nextYearBegin, weekBegin, weekEnd)){
                 // 如果当周包含下年元旦，就要判断当周是否属于本年或是下一年
-                int nextYearWeekDay = DateUtil.weekDay(nextYearBegin);
+                int nextYearWeekDay = weekDayCn(nextYearBegin);
                 // 元旦所在周小于等于3天属于下年，则该周为当年最后一周
                 if (!(nextYearWeekDay <= 4)){
                     // 下年元旦属于本年最后一周
@@ -713,11 +743,11 @@ public class DateUtil {
      * @param weekNum 1 ... 52
      * @return
      */
-    public static String[] getWeekOfYear(int year, int weekNum){
+    public static String[] getWeekOfYearCn(int year, int weekNum){
         if (weekNum < 1 ||weekNum > 52){
             throw new IllegalArgumentException("周的有效范围是1-52");
         }
-        List<String[]> weeks = getWeeksOfYear(year);
+        List<String[]> weeks = getWeeksOfYearCn(year);
         return weeks.get(weekNum-1);
     }
 
@@ -727,8 +757,8 @@ public class DateUtil {
      * @param date yyyy-MM-dd
      * @return weekBegin, weekEnd
      */
-    public static String[] getWeekByDate(String date){
-        int weekDay = weekDay(date);
+    public static String[] getWeekByDateCn(String date){
+        int weekDay = weekDayCn(date);
         String weekBegin = addDays(date, 1 - weekDay);
         String weekEnd = addDays(date, 7 - weekDay);
 
@@ -741,10 +771,10 @@ public class DateUtil {
      * @param date yyyy-MM-dd
      * @return year, weekNum
      */
-    public static int[] getYearAndWeek(String date){
+    public static int[] getYearAndWeekCn(String date){
         int year = Integer.parseInt(StringUtils.substring(date, 0, 4));
         // 获取当年所有周
-        List<String[]> weeks = getWeeksOfYear(year);
+        List<String[]> weeks = getWeeksOfYearCn(year);
         // 尝试当年中的正常周
         for (int i = 0;i <weeks.size(); i++) {
             String[] inWeek = weeks.get(i);
@@ -753,14 +783,14 @@ public class DateUtil {
             }
         }
         // 获取当日所在周
-        String[] week = getWeekByDate(date);
+        String[] week = getWeekByDateCn(date);
         // 获取当日所在年元旦
         String yearBegin = String.format("%s-01-01", year);
         if (isBetween(yearBegin, week[0], week[1])){
             // 如果当日所在周包含当年元旦，但是因为当年没匹配到
             // 所以到上年周匹配
             int lastYear = year - 1;
-            List<String[]> lastYearWeeks = getWeeksOfYear(lastYear);
+            List<String[]> lastYearWeeks = getWeeksOfYearCn(lastYear);
             for (int i = 0;i <lastYearWeeks.size(); i++) {
                 String[] inWeek = lastYearWeeks.get(i);
                 if (isBetween(date, inWeek[0], inWeek[1])){
@@ -770,7 +800,7 @@ public class DateUtil {
         }else{
             // 在下年里匹配
             int nextYear = year+1;
-            List<String[]> nextYearWeeks = getWeeksOfYear(nextYear);
+            List<String[]> nextYearWeeks = getWeeksOfYearCn(nextYear);
             for (int i = 0;i <nextYearWeeks.size(); i++) {
                 String[] inWeek = nextYearWeeks.get(i);
                 if (isBetween(date, inWeek[0], inWeek[1])){
@@ -789,11 +819,11 @@ public class DateUtil {
      * @param date     2020-10-10
      * @return
      */
-    public static boolean weekDayMatch(String weekDays, String date) {
+    public static boolean weekDayMatchCn(String weekDays, String date) {
         if (StringUtils.isBlank(weekDays)) {
             return false;
         }
-        int weekDay = weekDay(date);
+        int weekDay = weekDayCn(date);
         return StringUtils.contains(weekDays, weekDay + "");
     }
 
@@ -804,7 +834,7 @@ public class DateUtil {
      * @return
      */
     public static String weekDayChinese(String date) {
-        switch (weekDay(date)) {
+        switch (weekDayCn(date)) {
             case 7:
                 return "星期日";
             case 1:
@@ -846,11 +876,11 @@ public class DateUtil {
      * @param year
      * @return
      */
-    public static String weekRelativeDay(String date, int year) {
-        int weekDay = weekDay(date);
+    public static String weekRelativeDayCn(String date, int year) {
+        int weekDay = weekDayCn(date);
         Date dateValue = from(date).to(Date.class);
         Date targetValue = DateUtils.setYears(dateValue, year);
-        int targetWeekDay = weekDay(targetValue);
+        int targetWeekDay = weekDayCn(targetValue);
         targetValue = DateUtils.addDays(targetValue, weekDay - targetWeekDay);
         return from(targetValue).to(String.class);
     }
