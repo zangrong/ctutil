@@ -39,14 +39,34 @@ public class StringUtil {
     public static final String CHARSET_UTF_8 = "UTF-8";
 
     private static Pattern pattern = Pattern.compile("((?<=\\{)([a-zA-Z_]{1,})(?=\\}))");
+
+    /**
+     * replace with [key : value] pair
+     * @param text
+     * @param map
+     * @return
+     */
     public static String replace(String text, Map<String, Object> map) {
         Matcher matcher = pattern.matcher(text);
         while (matcher.find()) {
             String key = matcher.group();
             text = text.replaceAll("\\{" + key + "\\}", map.get(key) + "");
         }
-
         return text;
+    }
+
+    public static String replace(String text, String key, Object value) {
+        Map<String, Object> map = Map.of(key, value);
+        return replace(text, map);
+    }
+    public static String replace(String text, String key1, Object value1, String key2, Object value2) {
+        Map<String, Object> map = Map.of(key1, value1, key2, value2);
+        return replace(text, map);
+    }
+    public static String replace(String text, String key1, Object value1, String key2, Object value2
+            , String key3, Object value3) {
+        Map<String, Object> map = Map.of(key1, value1, key2, value2, key3, value3);
+        return replace(text, map);
     }
 
     /**
