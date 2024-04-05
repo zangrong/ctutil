@@ -23,6 +23,8 @@ public class DateUtilTest {
     void week() {
         String[] week = DateUtil.getWeekByDate("2023-12-05");
         log.info("week:{}", week);
+        Integer seconds = DateUtil.durationToSeconds("01:00:00");
+        log.info("seconds:{}", seconds);
     }
 
 }

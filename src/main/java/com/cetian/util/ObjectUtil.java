@@ -130,7 +130,7 @@ public class ObjectUtil {
 
 	public static Integer trimToInteger(Object obj) {
 		if (obj == null) {
-			return null;
+			return 0;
 		} else {
 			return Integer.parseInt(obj.toString());
 		}
@@ -138,7 +138,7 @@ public class ObjectUtil {
 
 	public static Double trimToDouble(Object obj) {
 		if (obj == null) {
-			return null;
+			return 0d;
 		} else {
 			return Double.parseDouble(obj.toString());
 		}

@@ -19,6 +19,8 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -284,6 +286,24 @@ public class DateUtil {
 
     public static String duration(long length) {
         return DurationFormatUtils.formatDuration(length, DURATION_FORMAT_CN);
+    }
+
+    /**
+     *
+     * @param duration HH:mm:ss
+     * @return
+     */
+    public static Integer durationToSeconds(String duration) {
+        Integer sec = null;
+        try {
+            DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+            Date reference = dateFormat.parse("00:00:00");
+            Date date = dateFormat.parse(duration);
+            long seconds = (date.getTime() - reference.getTime()) / 1000L;
+            sec = (int)seconds;
+        }catch (Exception e){
+        }
+        return sec;
     }
 
     /**
