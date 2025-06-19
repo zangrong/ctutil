@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -335,6 +336,12 @@ public class StringUtil {
         }
 
         return new String(chars);
+    }
+
+    public static String secureRandomNonce(int length) {
+        byte[] randomBytes = new byte[length];
+        new SecureRandom().nextBytes(randomBytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
     }
 
 }
